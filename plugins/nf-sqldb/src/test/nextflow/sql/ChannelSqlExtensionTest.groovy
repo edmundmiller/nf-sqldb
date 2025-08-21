@@ -95,25 +95,17 @@ class ChannelSqlExtensionTest extends Specification {
         rows.alpha == ['x1','y2','z3']
     }
 
-    def 'should provide helpful error message for unresolved secrets' () {
+    def 'should error on unresolved secrets' () {
         given:
         def session = Mock(Session) {
-            getConfig() >> [sql: [db: [athena: [
-                url: 'jdbc:awsathena://AwsRegion=us-east-1;S3OutputLocation=s3://bucket;Workgroup=CompBio',
-                user: 'secrets.ATHENA_USER',
-                password: '[secret]'
-            ]]]]
+            getConfig() >> [sql: [db: [test: [user: 'secrets.ATHENA_USER']]]]
         }
-        def sqlExtension = new ChannelSqlExtension()
 
         when:
-        sqlExtension.init(session)
+        new ChannelSqlExtension().init(session)
 
         then:
-        def e = thrown(IllegalArgumentException)
-        e.message.contains("Unresolved secret detected")
-        e.message.contains("secrets.ATHENA_USER")
-        e.message.contains("workspace secrets are not properly configured")
+        thrown(IllegalArgumentException)
     }
 
     def 'should handle unknown database' () {

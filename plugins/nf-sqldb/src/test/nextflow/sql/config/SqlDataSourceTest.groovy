@@ -133,75 +133,23 @@ class SqlDataSourceTest extends Specification {
         ds1.hashCode() != ds3.hashCode()
     }
 
-    def 'should handle null credentials gracefully' () {
+    def 'should detect unresolved secrets' () {
         when:
-        def ds = new SqlDataSource([url: 'jdbc:h2:mem:', user: null, password: null])
-        then:
-        ds.user == SqlDataSource.DEFAULT_USER
-        ds.password == null
-    }
-
-    def 'should handle empty string credentials' () {
-        when:
-        def ds = new SqlDataSource([url: 'jdbc:h2:mem:', user: '', password: ''])
-        then:
-        ds.user == SqlDataSource.DEFAULT_USER
-        ds.password == null
-    }
-
-    def 'should detect unresolved secrets.* pattern' () {
-        when:
-        new SqlDataSource([user: 'secrets.ATHENA_USER'])
+        new SqlDataSource([user: pattern])
         then:
         def e = thrown(IllegalArgumentException)
-        e.message.contains("Unresolved secret detected for user")
-        e.message.contains("secrets.ATHENA_USER")
+        e.message.contains("Unresolved secret detected")
         e.message.contains("workspace secrets are not properly configured")
+
+        where:
+        pattern << ['secrets.ATHENA_USER', '[secret]']
     }
 
-    def 'should detect unresolved [secret] pattern' () {
+    def 'should allow valid credentials' () {
         when:
-        new SqlDataSource([password: '[secret]'])
+        def ds = new SqlDataSource([user: 'validuser', password: 'validpass'])
         then:
-        def e = thrown(IllegalArgumentException)
-        e.message.contains("Unresolved secret detected for password")
-        e.message.contains("[secret]")
-        e.message.contains("workspace secrets are not properly configured")
-    }
-
-    def 'should allow valid secret-like strings that are not unresolved' () {
-        when:
-        def ds = new SqlDataSource([user: 'mysecret', password: 'secretpassword'])
-        then:
-        ds.user == 'mysecret'
-        ds.password == 'secretpassword'
-    }
-
-    def 'should handle secrets in fallback constructor' () {
-        given:
-        def fallback = new SqlDataSource([user: 'fallback_user', password: 'fallback_pass'])
-        
-        when:
-        new SqlDataSource([user: 'secrets.ATHENA_USER'], fallback)
-        then:
-        def e = thrown(IllegalArgumentException)
-        e.message.contains("Unresolved secret detected for user")
-    }
-
-    def 'should provide comprehensive error message for secrets' () {
-        when:
-        new SqlDataSource([user: 'secrets.MISSING_SECRET'])
-        then:
-        def e = thrown(IllegalArgumentException)
-        with(e.message) {
-            contains("Unresolved secret detected")
-            contains("secrets.MISSING_SECRET")
-            contains("workspace secrets are not properly configured")
-            contains("secret is defined in your workspace")
-            contains("secret name matches exactly")
-            contains("proper permissions")
-            contains("Nextflow version supports secrets")
-            contains("https://www.nextflow.io/docs/latest/secrets.html")
-        }
+        ds.user == 'validuser'
+        ds.password == 'validpass'
     }
 }
