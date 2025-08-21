@@ -25,6 +25,7 @@ import nextflow.plugin.TestPluginManager
 import nextflow.plugin.extension.PluginExtensionProvider
 import org.pf4j.PluginDescriptorFinder
 import spock.lang.IgnoreIf
+import spock.lang.Requires
 import spock.lang.Shared
 import spock.lang.Timeout
 import test.Dsl2Spec
@@ -191,6 +192,12 @@ class SqlDslTest extends Dsl2Spec {
     }
 
     @IgnoreIf({ System.getenv('NXF_SMOKE') })
+    @Requires({
+        System.getenv('NF_SQLDB_TEST_ATHENA_USERNAME') &&
+        System.getenv('NF_SQLDB_TEST_ATHENA_PASSWORD') &&
+        System.getenv('NF_SQLDB_TEST_ATHENA_REGION') &&
+        System.getenv('NF_SQLDB_ATHENA_TEST_S3_BUCKET')
+    })
     @Timeout(60)
     def 'should perform a query for AWS Athena and create a channel'() {
         given:
