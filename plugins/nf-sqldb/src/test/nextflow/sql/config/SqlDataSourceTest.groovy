@@ -132,4 +132,30 @@ class SqlDataSourceTest extends Specification {
         ds1.hashCode() == ds2.hashCode()
         ds1.hashCode() != ds3.hashCode()
     }
+
+    def 'should detect unresolved secrets' () {
+        when:
+        new SqlDataSource([user: pattern])
+        then:
+        def e = thrown(IllegalArgumentException)
+        e.message.contains("Unresolved secret detected")
+        e.message.contains("workspace secrets are not properly configured")
+
+        where:
+        pattern << ['secrets.ATHENA_USER', '[secret]']
+    }
+
+    def 'should handle various credential inputs' () {
+        when:
+        def ds = new SqlDataSource([user: userInput, password: passInput])
+        then:
+        ds.user == expectedUser
+        ds.password == expectedPass
+
+        where:
+        userInput    | passInput    | expectedUser              | expectedPass
+        'validuser'  | 'validpass'  | 'validuser'              | 'validpass'
+        null         | null         | SqlDataSource.DEFAULT_USER| null
+        ''           | ''           | SqlDataSource.DEFAULT_USER| null
+    }
 }

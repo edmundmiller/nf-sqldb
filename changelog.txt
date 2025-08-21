@@ -1,5 +1,10 @@
 NF-SQLDB CHANGE-LOG
 ===================
+0.7.1 - 21 Aug 2025
+- Fix unresolved secrets detection to prevent silent fallback to default credentials
+- Add comprehensive secrets documentation and troubleshooting guide
+- Improve error messages for unknown database configurations
+
 0.7.0 - 28 May 2025
 - Add sqlExecutor and other minor improvements [072ae039]
 

@@ -209,6 +209,12 @@ class SqlDslTest extends Dsl2Spec {
     @Requires({System.getenv('NF_SQLDB_TEST_ATHENA_REGION')})
     @Requires({System.getenv('NF_SQLDB_ATHENA_TEST_S3_BUCKET')})
     @IgnoreIf({ System.getenv('NXF_SMOKE') })
+    @Requires({
+        System.getenv('NF_SQLDB_TEST_ATHENA_USERNAME') &&
+        System.getenv('NF_SQLDB_TEST_ATHENA_PASSWORD') &&
+        System.getenv('NF_SQLDB_TEST_ATHENA_REGION') &&
+        System.getenv('NF_SQLDB_ATHENA_TEST_S3_BUCKET')
+    })
     @Timeout(60)
     def 'should perform a query for AWS Athena and create a channel'() {
         given:
