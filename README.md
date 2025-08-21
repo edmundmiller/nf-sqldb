@@ -66,6 +66,8 @@ The following options are available:
 `sql.db.'<DB-NAME>'.password`
 : The database connection password.
 
+For information on using secrets with database credentials, see [docs/secrets.md](docs/secrets.md).
+
 ## Dataflow Operators
 
 This plugin provides the following dataflow operators for querying from and inserting into database tables.
