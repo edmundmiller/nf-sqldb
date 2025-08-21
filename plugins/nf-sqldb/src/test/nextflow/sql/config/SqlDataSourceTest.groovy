@@ -145,11 +145,17 @@ class SqlDataSourceTest extends Specification {
         pattern << ['secrets.ATHENA_USER', '[secret]']
     }
 
-    def 'should allow valid credentials' () {
+    def 'should handle various credential inputs' () {
         when:
-        def ds = new SqlDataSource([user: 'validuser', password: 'validpass'])
+        def ds = new SqlDataSource([user: userInput, password: passInput])
         then:
-        ds.user == 'validuser'
-        ds.password == 'validpass'
+        ds.user == expectedUser
+        ds.password == expectedPass
+
+        where:
+        userInput    | passInput    | expectedUser              | expectedPass
+        'validuser'  | 'validpass'  | 'validuser'              | 'validpass'
+        null         | null         | SqlDataSource.DEFAULT_USER| null
+        ''           | ''           | SqlDataSource.DEFAULT_USER| null
     }
 }
