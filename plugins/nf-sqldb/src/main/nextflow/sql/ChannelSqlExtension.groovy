@@ -106,11 +106,9 @@ class ChannelSqlExtension extends PluginExtensionPoint {
         final dataSource = config.getDataSource(dsName)
         if( dataSource==null ) {
             def msg = "Unknown db name: $dsName"
-            def choices = config.getDataSourceNames().closest(dsName) ?: config.getDataSourceNames()
-            if( choices?.size() == 1 )
-                msg += " - Did you mean: ${choices.get(0)}?"
-            else if( choices )
-                msg += " - Did you mean any of these?\n" + choices.collect { "  $it"}.join('\n') + '\n'
+            def choices = config.getDataSourceNames()
+            if( choices )
+                msg += " - Available databases: " + choices.join(', ')
             throw new IllegalArgumentException(msg)
         }
         return dataSource
